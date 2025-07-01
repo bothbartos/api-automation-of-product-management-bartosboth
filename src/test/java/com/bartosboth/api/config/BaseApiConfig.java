@@ -9,30 +9,71 @@ import io.restassured.specification.RequestSpecification;
 import io.restassured.specification.ResponseSpecification;
 import org.junit.jupiter.api.BeforeAll;
 
+import static org.hamcrest.Matchers.*;
+
 public class BaseApiConfig {
+
     public static final String BASE_URL = "https://fakestoreapi.com";
     public static final String PRODUCTS_ENDPOINT = "/products";
 
-    protected static RequestSpecification requestSpecification;
-    protected static ResponseSpecification responseSpecification;
+    protected static RequestSpecification requestSpec;
+    protected static RequestSpecification createRequestSpec;
+    protected static RequestSpecification updateRequestSpec;
+    protected static ResponseSpecification successResponseSpec;
+    protected static ResponseSpecification createdResponseSpec;
+    protected static ResponseSpecification notFoundResponseSpec;
+    protected static ResponseSpecification updateResponseSpec;
 
     @BeforeAll
     public static void setupRestAssured() {
         RestAssured.baseURI = BASE_URL;
 
-        requestSpecification = new RequestSpecBuilder()
+        requestSpec = new RequestSpecBuilder()
                 .setContentType(ContentType.JSON)
                 .setAccept(ContentType.JSON)
+                .addHeader("User-Agent", "RestAssured-AutomationTest/1.0")
                 .log(LogDetail.ALL)
                 .build();
 
-        responseSpecification = new ResponseSpecBuilder()
+        createRequestSpec = new RequestSpecBuilder()
+                .addRequestSpecification(requestSpec)
+                .setContentType(ContentType.JSON)
+                .build();
+
+        updateRequestSpec = new RequestSpecBuilder()
+                .addRequestSpecification(requestSpec)
+                .setContentType(ContentType.JSON)
+                .build();
+
+        successResponseSpec = new ResponseSpecBuilder()
+                .expectStatusCode(200)
+                .expectHeader("Content-Type", containsString("application/json"))
+                .expectResponseTime(lessThan(5000L))
                 .log(LogDetail.ALL)
                 .build();
 
-        RestAssured.requestSpecification = requestSpecification;
-        RestAssured.responseSpecification = responseSpecification;
+        createdResponseSpec = new ResponseSpecBuilder()
+                .expectStatusCode(anyOf(equalTo(200), equalTo(201)))
+                .expectHeader("Content-Type", containsString("application/json"))
+                .expectResponseTime(lessThan(5000L))
+                .expectBody("id", notNullValue())
+                .log(LogDetail.ALL)
+                .build();
+
+
+        notFoundResponseSpec = new ResponseSpecBuilder()
+                .expectStatusCode(404)
+                .expectResponseTime(lessThan(5000L))
+                .log(LogDetail.ALL)
+                .build();
+
+        updateResponseSpec = new ResponseSpecBuilder()
+                .expectStatusCode(200)
+                .expectHeader("Content-Type", containsString("application/json"))
+                .expectResponseTime(lessThan(5000L))
+                .expectBody("id", notNullValue())
+                .log(LogDetail.ALL)
+                .build();
+
     }
-
-
 }
