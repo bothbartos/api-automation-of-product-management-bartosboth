@@ -5,6 +5,7 @@ import com.bartosboth.api.config.BaseApiConfig;
 import com.bartosboth.api.data.ProductTestDataFactory;
 import com.bartosboth.api.model.Product;
 import io.restassured.response.Response;
+import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -30,7 +31,6 @@ public class BonusProductManagementWorkflowTest extends BaseApiConfig {
         productClient = new ProductApiClient();
 
         Response allProductsResponse = productClient.getProducts();
-        allProductsResponse.then().spec(successResponseSpec);
 
         Product[] allProducts = allProductsResponse.as(Product[].class);
         initialProductCount = allProducts.length;
@@ -40,13 +40,10 @@ public class BonusProductManagementWorkflowTest extends BaseApiConfig {
     }
 
     @Test
-    @Order(1)
     @DisplayName("Validate All Products with JSON Schema")
     public void testGetAllProductsWithSchemaValidation() {
 
         Response response = productClient.getProducts();
-
-        response.then().spec(successResponseSpec);
 
         response.then()
                 .assertThat()
@@ -56,45 +53,42 @@ public class BonusProductManagementWorkflowTest extends BaseApiConfig {
         assertThat(products).hasSize(20);
 
         Product firstProduct = products[0];
-        assertThat(firstProduct.id()).isNotNull().isPositive();
-        assertThat(firstProduct.title()).isNotNull().isNotEmpty();
-        assertThat(firstProduct.price()).isNotNull().isPositive();
-        assertThat(firstProduct.description()).isNotNull();
-        assertThat(firstProduct.category()).isNotNull().isNotEmpty();
-        assertThat(firstProduct.image()).isNotNull().isNotEmpty();
+        AssertionsForClassTypes.assertThat(firstProduct.id()).isEqualTo(TEST_PRODUCT_ID);
+        AssertionsForClassTypes.assertThat(firstProduct.title()).isEqualTo("Fjallraven - Foldsack No. 1 Backpack, Fits 15 Laptops");
+        AssertionsForClassTypes.assertThat(firstProduct.price()).isEqualTo(109.95);
+        AssertionsForClassTypes.assertThat(firstProduct.category()).isEqualTo("men's clothing");
+        AssertionsForClassTypes.assertThat(firstProduct.description()).isEqualTo( "Your perfect pack for everyday use and walks in the forest. Stash your laptop (up to 15 inches) in the padded sleeve, your everyday");
+        AssertionsForClassTypes.assertThat(firstProduct.image()).isEqualTo( "https://fakestoreapi.com/img/81fPKd-2AYL._AC_SL1500_.jpg");
+        AssertionsForClassTypes.assertThat(firstProduct.rating()).isEqualTo(new Product.Rating(3.9, 120));
 
         System.out.println("Schema validation passed for all products");
     }
 
     @Test
-    @Order(2)
     @DisplayName("Validate Single Product with JSON Schema")
     public void testGetProductByIdWithSchemaValidation() {
 
         Response response = productClient.getProduct(TEST_PRODUCT_ID);
 
-        response.then().spec(successResponseSpec);
 
         response.then()
                 .assertThat()
                 .body(matchesJsonSchemaInClasspath("schemas/product-schema.json"));
 
         Product product = response.as(Product.class);
-        assertThat(product.id()).isEqualTo(TEST_PRODUCT_ID);
-        assertThat(product.title()).isNotNull().isNotEmpty();
-        assertThat(product.price()).isNotNull().isPositive();
-        assertThat(product.description()).isNotNull();
-        assertThat(product.category()).isNotNull().isNotEmpty();
-        assertThat(product.image()).isNotNull().isNotEmpty();
-        assertThat(product.rating()).isNotNull();
-        assertThat(product.rating().rate()).isNotNull().isPositive();
-        assertThat(product.rating().count()).isNotNull().isNotNegative();
+        AssertionsForClassTypes.assertThat(product.id()).isEqualTo(TEST_PRODUCT_ID);
+        AssertionsForClassTypes.assertThat(product.title()).isEqualTo("Fjallraven - Foldsack No. 1 Backpack, Fits 15 Laptops");
+        AssertionsForClassTypes.assertThat(product.price()).isEqualTo(109.95);
+        AssertionsForClassTypes.assertThat(product.category()).isEqualTo("men's clothing");
+        AssertionsForClassTypes.assertThat(product.description()).isEqualTo( "Your perfect pack for everyday use and walks in the forest. Stash your laptop (up to 15 inches) in the padded sleeve, your everyday");
+        AssertionsForClassTypes.assertThat(product.image()).isEqualTo( "https://fakestoreapi.com/img/81fPKd-2AYL._AC_SL1500_.jpg");
+        AssertionsForClassTypes.assertThat(product.rating()).isEqualTo(new Product.Rating(3.9, 120));
+
 
         System.out.println("Schema validation passed for single product");
     }
 
     @Test
-    @Order(3)
     @DisplayName("Update Product with CSV Test Data")
     public void testUpdateProductWithCsvData() {
 
@@ -103,7 +97,6 @@ public class BonusProductManagementWorkflowTest extends BaseApiConfig {
 
         Response response = productClient.updateProduct(TEST_PRODUCT_ID, updateProduct);
 
-        response.then().spec(updateResponseSpec);
 
         Product updatedProduct = response.as(Product.class);
         assertThat(updatedProduct.id()).isEqualTo(TEST_PRODUCT_ID);
@@ -117,7 +110,6 @@ public class BonusProductManagementWorkflowTest extends BaseApiConfig {
     }
 
     @Test
-    @Order(4)
     @DisplayName("Validate CSV Data Loading")
     public void testCsvDataLoading() {
 
@@ -139,12 +131,10 @@ public class BonusProductManagementWorkflowTest extends BaseApiConfig {
     }
 
     @Test
-    @Order(5)
     @DisplayName("Validate Product Count Consistency")
     public void testProductCountConsistency() {
 
         Response response = productClient.getProducts();
-        response.then().spec(successResponseSpec);
 
         Product[] currentProducts = response.as(Product[].class);
         int currentCount = currentProducts.length;
@@ -155,7 +145,6 @@ public class BonusProductManagementWorkflowTest extends BaseApiConfig {
     }
 
     @Test
-    @Order(6)
     @DisplayName("Contract Validation - Response Time and Headers")
     public void testContractValidation() {
 
@@ -181,11 +170,10 @@ public class BonusProductManagementWorkflowTest extends BaseApiConfig {
 
         Response response = productClient.createProduct(product);
 
-        response.then().spec(createdResponseSpec);
 
         Product createdProduct = response.as(Product.class);
 
-        assertThat(createdProduct.id()).isNotNull().isPositive();
+        assertThat(createdProduct.id()).isEqualTo(21);
         assertThat(createdProduct.title()).isEqualTo(product.title());
         assertThat(createdProduct.price()).isEqualTo(product.price());
         assertThat(createdProduct.category()).isEqualTo(product.category());

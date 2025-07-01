@@ -15,7 +15,7 @@ public class ProductManagementWorkflowTest extends BaseApiConfig {
 
     private static ProductApiClient productApiClient;
     private static Product testProduct;
-    private static final Integer testProductId = 1;
+    private static final Integer TEST_PRODUCT_ID = 1;
     private static int initialProductCount;
 
     @BeforeAll
@@ -28,8 +28,7 @@ public class ProductManagementWorkflowTest extends BaseApiConfig {
     }
 
     @Test
-    @Order(1)
-    @DisplayName("1. Create Product - POST /products")
+    @DisplayName("Create Product - POST /products")
     public void testCreateProduct() {
 
         Response response = productApiClient.createProduct(testProduct);
@@ -38,7 +37,7 @@ public class ProductManagementWorkflowTest extends BaseApiConfig {
 
         Product createdProduct = response.getBody().as(Product.class);
 
-        assertThat(createdProduct.id()).isNotNull().isPositive();
+        assertThat(createdProduct.id()).isEqualTo(21);
         assertThat(createdProduct.title()).isEqualTo(testProduct.title());
         assertThat(createdProduct.price()).isEqualTo(testProduct.price());
         assertThat(createdProduct.category()).isEqualTo(testProduct.category());
@@ -50,31 +49,27 @@ public class ProductManagementWorkflowTest extends BaseApiConfig {
     }
 
     @Test
-    @Order(2)
-    @DisplayName("2. Get Product by ID - GET /products/{id}")
+    @DisplayName("Get Product by ID - GET /products/{id}")
     public void testGetProductById() {
 
-        Response response = productApiClient.getProduct(testProductId);
+        Response response = productApiClient.getProduct(TEST_PRODUCT_ID);
 
         assertThat(response.statusCode()).isEqualTo(200);
 
         Product product = response.getBody().as(Product.class);
 
-        assertThat(product.id()).isEqualTo(testProductId);
-        assertThat(product.title()).isNotNull().isNotEmpty();
-        assertThat(product.price()).isNotNull().isPositive();
-        assertThat(product.category()).isNotNull().isNotEmpty();
-        assertThat(product.description()).isNotNull();
-        assertThat(product.image()).isNotNull().isNotEmpty();
-        assertThat(product.rating()).isNotNull();
-        assertThat(product.rating().rate()).isNotNull().isPositive();
-        assertThat(product.rating().count()).isNotNull().isNotNegative();
+        assertThat(product.id()).isEqualTo(TEST_PRODUCT_ID);
+        assertThat(product.title()).isEqualTo("Fjallraven - Foldsack No. 1 Backpack, Fits 15 Laptops");
+        assertThat(product.price()).isEqualTo(109.95);
+        assertThat(product.category()).isEqualTo("men's clothing");
+        assertThat(product.description()).isEqualTo( "Your perfect pack for everyday use and walks in the forest. Stash your laptop (up to 15 inches) in the padded sleeve, your everyday");
+        assertThat(product.image()).isEqualTo( "https://fakestoreapi.com/img/81fPKd-2AYL._AC_SL1500_.jpg");
+        assertThat(product.rating()).isEqualTo(new Product.Rating(3.9, 120));
 
         System.out.println("Product retrieved successfully: " + product.title());
     }
 
     @Test
-    @Order(3)
     @DisplayName("Get All Products - GET /products")
     public void testGetAllProducts() {
 
@@ -89,31 +84,30 @@ public class ProductManagementWorkflowTest extends BaseApiConfig {
 
         Product product = products[0];
 
-        assertThat(product.id()).isNotNull().isPositive();
-        assertThat(product.title()).isNotNull().isNotEmpty();
-        assertThat(product.price()).isNotNull().isPositive();
-        assertThat(product.category()).isNotNull().isNotEmpty();
-        assertThat(product.description()).isNotNull();
-        assertThat(product.image()).isNotNull().isNotEmpty();
-        assertThat(product.rating()).isNotNull();
+        assertThat(product.id()).isEqualTo(TEST_PRODUCT_ID);
+        assertThat(product.title()).isEqualTo("Fjallraven - Foldsack No. 1 Backpack, Fits 15 Laptops");
+        assertThat(product.price()).isEqualTo(109.95);
+        assertThat(product.category()).isEqualTo("men's clothing");
+        assertThat(product.description()).isEqualTo( "Your perfect pack for everyday use and walks in the forest. Stash your laptop (up to 15 inches) in the padded sleeve, your everyday");
+        assertThat(product.image()).isEqualTo( "https://fakestoreapi.com/img/81fPKd-2AYL._AC_SL1500_.jpg");
+        assertThat(product.rating()).isEqualTo(new Product.Rating(3.9, 120));
 
         System.out.println("Retrieved " + products.length + " products successfully");
     }
 
     @Test
-    @Order(4)
-    @DisplayName("4. Update Product - PUT /products/{id}")
+    @DisplayName("Update Product - PUT /products/{id}")
     public void testUpdateProduct() {
 
         Product updatedProduct = ProductTestDataFactory.createValidProduct();
 
-        Response response = productApiClient.updateProduct(testProductId, updatedProduct);
+        Response response = productApiClient.updateProduct(TEST_PRODUCT_ID, updatedProduct);
 
         assertThat(response.statusCode()).isEqualTo(200);
 
         Product product = response.getBody().as(Product.class);
 
-        assertThat(product.id()).isEqualTo(testProductId);
+        assertThat(product.id()).isEqualTo(TEST_PRODUCT_ID);
         assertThat(product.title()).isEqualTo(updatedProduct.title());
         assertThat(product.price()).isEqualTo(updatedProduct.price());
         assertThat(product.category()).isEqualTo(updatedProduct.category());
@@ -125,24 +119,23 @@ public class ProductManagementWorkflowTest extends BaseApiConfig {
     }
 
     @Test
-    @Order(5)
-    @DisplayName("5. Delete Product - DELETE /products/{id}")
+    @DisplayName("Delete Product - DELETE /products/{id}")
     public void testDeleteProduct() {
 
-        assertThat(testProductId).isNotNull();
+        assertThat(TEST_PRODUCT_ID).isNotNull();
 
-        Response response = productApiClient.deleteProduct(testProductId);
+        Response response = productApiClient.deleteProduct(TEST_PRODUCT_ID);
 
         assertThat(response.statusCode()).isEqualTo(200);
 
         Product deletedProduct = response.body().as(Product.class);
 
-        assertThat(deletedProduct.id()).isEqualTo(testProductId);
+        assertThat(deletedProduct.id()).isEqualTo(TEST_PRODUCT_ID);
         assertThat(deletedProduct.title()).isNotNull();
         assertThat(deletedProduct.price()).isNotNull();
         assertThat(deletedProduct.category()).isNotNull();
 
-        System.out.println("Product deleted successfully with ID: " + testProductId);
+        System.out.println("Product deleted successfully with ID: " + TEST_PRODUCT_ID);
         System.out.println("Note: FakeStoreAPI simulates deletion but doesn't actually remove data");
     }
 }
