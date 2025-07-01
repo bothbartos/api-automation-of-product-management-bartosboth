@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.lessThan;
 
@@ -74,7 +74,6 @@ public class BonusProductManagementWorkflowTest extends BaseApiConfig {
         System.out.println("Schema validation passed for single product");
     }
 
-    // Data-driven test using CSV data for creation
 
     @Test
     @Order(3)
@@ -160,6 +159,8 @@ public class BonusProductManagementWorkflowTest extends BaseApiConfig {
     static Stream<Product> provideCreateProductsFromCsv() {
         return ProductTestDataFactory.getCreateProducts().stream();
     }
+
+    // Data-driven test using CSV data for creation
 
     @ParameterizedTest
     @MethodSource("provideCreateProductsFromCsv")
