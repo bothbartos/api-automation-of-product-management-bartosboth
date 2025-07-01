@@ -34,20 +34,19 @@ public class ProductManagementWorkflowTest extends BaseApiConfig {
 
         Response response = productApiClient.createProduct(testProduct);
 
-        assertThat(response.statusCode())
-                .as("Create product should return 200 or 201")
-                .isIn(200, 201);
+        assertThat(response.statusCode()).isIn(200, 201);
 
         Product createdProduct = response.getBody().as(Product.class);
 
-        assertThat(createdProduct.id())
-                .as("Created product should have automatically generated ID")
-                .isNotNull()
-                .isPositive();
+        assertThat(createdProduct.id()).isNotNull().isPositive();
+        assertThat(createdProduct.title()).isEqualTo(testProduct.title());
+        assertThat(createdProduct.price()).isEqualTo(testProduct.price());
+        assertThat(createdProduct.category()).isEqualTo(testProduct.category());
+        assertThat(createdProduct.description()).isEqualTo(testProduct.description());
+        assertThat(createdProduct.image()).isEqualTo(testProduct.image());
 
         System.out.println("Product created successfully with ID: " + createdProduct.id());
         System.out.println("Note: FakeStoreAPI simulates creation but doesn't persist data");
-
     }
 
     @Test
@@ -57,33 +56,21 @@ public class ProductManagementWorkflowTest extends BaseApiConfig {
 
         Response response = productApiClient.getProduct(testProductId);
 
-        assertThat(response.statusCode())
-                .as("Get product should return 200")
-                .isEqualTo(200);
+        assertThat(response.statusCode()).isEqualTo(200);
 
         Product product = response.getBody().as(Product.class);
 
-        assertThat(product.id())
-                .as("Retrieved product should match request ID")
-                .isEqualTo(testProductId);
-
-        assertThat(product.title())
-                .as("Product should have a title")
-                .isNotNull()
-                .isNotEmpty();
-
-        assertThat(product.price())
-                .as("Product should have a price")
-                .isNotNull()
-                .isPositive();
-
-        assertThat(product.category())
-                .as("Product should have a category")
-                .isNotNull()
-                .isNotEmpty();
+        assertThat(product.id()).isEqualTo(testProductId);
+        assertThat(product.title()).isNotNull().isNotEmpty();
+        assertThat(product.price()).isNotNull().isPositive();
+        assertThat(product.category()).isNotNull().isNotEmpty();
+        assertThat(product.description()).isNotNull();
+        assertThat(product.image()).isNotNull().isNotEmpty();
+        assertThat(product.rating()).isNotNull();
+        assertThat(product.rating().rate()).isNotNull().isPositive();
+        assertThat(product.rating().count()).isNotNull().isNotNegative();
 
         System.out.println("Product retrieved successfully: " + product.title());
-
     }
 
     @Test
@@ -93,34 +80,24 @@ public class ProductManagementWorkflowTest extends BaseApiConfig {
 
         Response response = productApiClient.getProducts();
 
-        assertThat(response.statusCode())
-                .as("Get all products should return 200")
-                .isEqualTo(200);
+        assertThat(response.statusCode()).isEqualTo(200);
 
         Product[] products = response.getBody().as(Product[].class);
 
-        assertThat(products)
-                .as("Response should contain products")
-                .isNotNull()
-                .isNotEmpty();
-
-        assertThat(products.length)
-                .as("Should have at least the initial product count")
-                .isGreaterThanOrEqualTo(initialProductCount);
+        assertThat(products).isNotNull().isNotEmpty();
+        assertThat(products.length).isGreaterThanOrEqualTo(initialProductCount);
 
         Product product = products[0];
 
-        assertThat(product.id())
-                .as("Each product should have an ID")
-                .isNotNull();
-
-        assertThat(product.title())
-                .as("Each product should have a title")
-                .isNotNull()
-                .isNotEmpty();
+        assertThat(product.id()).isNotNull().isPositive();
+        assertThat(product.title()).isNotNull().isNotEmpty();
+        assertThat(product.price()).isNotNull().isPositive();
+        assertThat(product.category()).isNotNull().isNotEmpty();
+        assertThat(product.description()).isNotNull();
+        assertThat(product.image()).isNotNull().isNotEmpty();
+        assertThat(product.rating()).isNotNull();
 
         System.out.println("Retrieved " + products.length + " products successfully");
-
     }
 
     @Test
@@ -132,20 +109,19 @@ public class ProductManagementWorkflowTest extends BaseApiConfig {
 
         Response response = productApiClient.updateProduct(testProductId, updatedProduct);
 
-        assertThat(response.statusCode())
-                .as("Update product should return 200")
-                .isEqualTo(200);
+        assertThat(response.statusCode()).isEqualTo(200);
 
         Product product = response.getBody().as(Product.class);
 
-        assertThat(product.id())
-                .as("Retrieved product should match request ID")
-                .isEqualTo(testProductId);
-
+        assertThat(product.id()).isEqualTo(testProductId);
+        assertThat(product.title()).isEqualTo(updatedProduct.title());
+        assertThat(product.price()).isEqualTo(updatedProduct.price());
+        assertThat(product.category()).isEqualTo(updatedProduct.category());
+        assertThat(product.description()).isEqualTo(updatedProduct.description());
+        assertThat(product.image()).isEqualTo(updatedProduct.image());
 
         System.out.println("Product updated successfully: " + product.title());
         System.out.println("Note: FakeStoreAPI simulates update but doesn't persist changes");
-
     }
 
     @Test
@@ -153,25 +129,20 @@ public class ProductManagementWorkflowTest extends BaseApiConfig {
     @DisplayName("5. Delete Product - DELETE /products/{id}")
     public void testDeleteProduct() {
 
-        assertThat(testProductId)
-                .as("Product ID should be available from Create Test")
-                .isNotNull();
+        assertThat(testProductId).isNotNull();
 
         Response response = productApiClient.deleteProduct(testProductId);
 
-        assertThat(response.statusCode())
-                .as("Delete product should return 200")
-                .isEqualTo(200);
+        assertThat(response.statusCode()).isEqualTo(200);
 
         Product deletedProduct = response.body().as(Product.class);
 
-        assertThat(deletedProduct.id())
-                .as("Deleted product response should contain the product ID")
-                .isEqualTo(testProductId);
+        assertThat(deletedProduct.id()).isEqualTo(testProductId);
+        assertThat(deletedProduct.title()).isNotNull();
+        assertThat(deletedProduct.price()).isNotNull();
+        assertThat(deletedProduct.category()).isNotNull();
 
         System.out.println("Product deleted successfully with ID: " + testProductId);
         System.out.println("Note: FakeStoreAPI simulates deletion but doesn't actually remove data");
-
     }
-
 }

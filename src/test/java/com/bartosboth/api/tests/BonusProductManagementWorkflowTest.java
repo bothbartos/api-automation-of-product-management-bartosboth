@@ -26,9 +26,9 @@ public class BonusProductManagementWorkflowTest extends BaseApiConfig {
 
     @BeforeAll
     public static void setupTestClass() {
+
         productClient = new ProductApiClient();
 
-        // Get and validate initial product count
         Response allProductsResponse = productClient.getProducts();
         allProductsResponse.then().spec(successResponseSpec);
 
@@ -43,6 +43,7 @@ public class BonusProductManagementWorkflowTest extends BaseApiConfig {
     @Order(1)
     @DisplayName("Validate All Products with JSON Schema")
     public void testGetAllProductsWithSchemaValidation() {
+
         Response response = productClient.getProducts();
 
         response.then().spec(successResponseSpec);
@@ -52,17 +53,24 @@ public class BonusProductManagementWorkflowTest extends BaseApiConfig {
                 .body(matchesJsonSchemaInClasspath("schemas/products-array-schema.json"));
 
         Product[] products = response.as(Product[].class);
-        assertThat(products)
-                .as("Should return exactly 20 products from FakeStoreAPI")
-                .hasSize(20);
+        assertThat(products).hasSize(20);
 
-        System.out.println("✅ Schema validation passed for all products");
+        Product firstProduct = products[0];
+        assertThat(firstProduct.id()).isNotNull().isPositive();
+        assertThat(firstProduct.title()).isNotNull().isNotEmpty();
+        assertThat(firstProduct.price()).isNotNull().isPositive();
+        assertThat(firstProduct.description()).isNotNull();
+        assertThat(firstProduct.category()).isNotNull().isNotEmpty();
+        assertThat(firstProduct.image()).isNotNull().isNotEmpty();
+
+        System.out.println("Schema validation passed for all products");
     }
 
     @Test
     @Order(2)
     @DisplayName("Validate Single Product with JSON Schema")
     public void testGetProductByIdWithSchemaValidation() {
+
         Response response = productClient.getProduct(TEST_PRODUCT_ID);
 
         response.then().spec(successResponseSpec);
@@ -71,9 +79,19 @@ public class BonusProductManagementWorkflowTest extends BaseApiConfig {
                 .assertThat()
                 .body(matchesJsonSchemaInClasspath("schemas/product-schema.json"));
 
+        Product product = response.as(Product.class);
+        assertThat(product.id()).isEqualTo(TEST_PRODUCT_ID);
+        assertThat(product.title()).isNotNull().isNotEmpty();
+        assertThat(product.price()).isNotNull().isPositive();
+        assertThat(product.description()).isNotNull();
+        assertThat(product.category()).isNotNull().isNotEmpty();
+        assertThat(product.image()).isNotNull().isNotEmpty();
+        assertThat(product.rating()).isNotNull();
+        assertThat(product.rating().rate()).isNotNull().isPositive();
+        assertThat(product.rating().count()).isNotNull().isNotNegative();
+
         System.out.println("Schema validation passed for single product");
     }
-
 
     @Test
     @Order(3)
@@ -85,31 +103,27 @@ public class BonusProductManagementWorkflowTest extends BaseApiConfig {
 
         Response response = productClient.updateProduct(TEST_PRODUCT_ID, updateProduct);
 
-        response.then().spec(successResponseSpec);
+        response.then().spec(updateResponseSpec);
 
-        String responseBody = response.getBody().asString();
-        System.out.println("Update response: " + responseBody);
-
-        assertThat(response.jsonPath().getInt("id"))
-                .as("Response should contain the updated product ID")
-                .isEqualTo(TEST_PRODUCT_ID);
+        Product updatedProduct = response.as(Product.class);
+        assertThat(updatedProduct.id()).isEqualTo(TEST_PRODUCT_ID);
+        assertThat(updatedProduct.title()).isEqualTo(updateProduct.title());
+        assertThat(updatedProduct.price()).isEqualTo(updateProduct.price());
+        assertThat(updatedProduct.category()).isEqualTo(updateProduct.category());
+        assertThat(updatedProduct.description()).isEqualTo(updateProduct.description());
+        assertThat(updatedProduct.image()).isEqualTo(updateProduct.image());
 
         System.out.println("Update request processed successfully for product ID: " + TEST_PRODUCT_ID);
-        System.out.println("Note: FakeStoreAPI only returns ID in update response (documented behavior)");
-        System.out.println("Attempted to update: " + updateProduct.title() + " (Price: $" + updateProduct.price() + ")");
-
     }
 
     @Test
     @Order(4)
     @DisplayName("Validate CSV Data Loading")
     public void testCsvDataLoading() {
+
         List<Product> allCsvProducts = ProductTestDataFactory.loadProductsFromCsv("test-data/products.csv");
 
-        assertThat(allCsvProducts)
-                .as("Should load products from CSV file")
-                .isNotEmpty()
-                .hasSize(5);
+        assertThat(allCsvProducts).isNotEmpty().hasSize(5);
 
         allCsvProducts.forEach(product -> {
             assertThat(product.title()).isNotBlank();
@@ -128,15 +142,14 @@ public class BonusProductManagementWorkflowTest extends BaseApiConfig {
     @Order(5)
     @DisplayName("Validate Product Count Consistency")
     public void testProductCountConsistency() {
+
         Response response = productClient.getProducts();
         response.then().spec(successResponseSpec);
 
         Product[] currentProducts = response.as(Product[].class);
         int currentCount = currentProducts.length;
 
-        assertThat(currentCount)
-                .as("Product count should remain consistent in FakeStoreAPI")
-                .isEqualTo(initialProductCount);
+        assertThat(currentCount).isEqualTo(initialProductCount);
 
         System.out.println("Product count validation: " + currentCount + " products (consistent)");
     }
@@ -145,6 +158,7 @@ public class BonusProductManagementWorkflowTest extends BaseApiConfig {
     @Order(6)
     @DisplayName("Contract Validation - Response Time and Headers")
     public void testContractValidation() {
+
         Response response = productClient.getProducts();
 
         response.then()
@@ -160,8 +174,6 @@ public class BonusProductManagementWorkflowTest extends BaseApiConfig {
         return ProductTestDataFactory.getCreateProducts().stream();
     }
 
-    // Data-driven test using CSV data for creation
-
     @ParameterizedTest
     @MethodSource("provideCreateProductsFromCsv")
     @DisplayName("Create Products from CSV Test Data")
@@ -171,18 +183,16 @@ public class BonusProductManagementWorkflowTest extends BaseApiConfig {
 
         response.then().spec(createdResponseSpec);
 
-        String responseBody = response.getBody().asString();
-        System.out.println("Create response: " + responseBody);
+        Product createdProduct = response.as(Product.class);
 
-        assertThat(response.jsonPath().getInt("id"))
-                .as("Response should contain the created product ID")
-                .isNotNull()
-                .isPositive();
+        assertThat(createdProduct.id()).isNotNull().isPositive();
+        assertThat(createdProduct.title()).isEqualTo(product.title());
+        assertThat(createdProduct.price()).isEqualTo(product.price());
+        assertThat(createdProduct.category()).isEqualTo(product.category());
+        assertThat(createdProduct.description()).isEqualTo(product.description());
+        assertThat(createdProduct.image()).isEqualTo(product.image());
 
-        System.out.println("Create request processed successfully");
-        System.out.println("Note: FakeStoreAPI only returns ID in create response (documented behavior)");
-        System.out.println("Attempted to create: " + product.title() + " (Price: $" + product.price() + ")");
+        System.out.println("Created product from CSV: " + createdProduct.title() +
+                " (ID: " + createdProduct.id() + ", Price: $" + createdProduct.price() + ")");
     }
-
 }
-

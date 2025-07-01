@@ -3,7 +3,6 @@ package com.bartosboth.api.config;
 import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.builder.ResponseSpecBuilder;
-import io.restassured.filter.log.LogDetail;
 import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
 import io.restassured.specification.ResponseSpecification;
@@ -14,7 +13,6 @@ import static org.hamcrest.Matchers.*;
 public class BaseApiConfig {
 
     public static final String BASE_URL = "https://fakestoreapi.com";
-    public static final String PRODUCTS_ENDPOINT = "/products";
 
     protected static RequestSpecification requestSpec;
     protected static RequestSpecification createRequestSpec;
@@ -32,7 +30,6 @@ public class BaseApiConfig {
                 .setContentType(ContentType.JSON)
                 .setAccept(ContentType.JSON)
                 .addHeader("User-Agent", "RestAssured-AutomationTest/1.0")
-                .log(LogDetail.ALL)
                 .build();
 
         createRequestSpec = new RequestSpecBuilder()
@@ -49,7 +46,6 @@ public class BaseApiConfig {
                 .expectStatusCode(200)
                 .expectHeader("Content-Type", containsString("application/json"))
                 .expectResponseTime(lessThan(5000L))
-                .log(LogDetail.ALL)
                 .build();
 
         createdResponseSpec = new ResponseSpecBuilder()
@@ -57,14 +53,12 @@ public class BaseApiConfig {
                 .expectHeader("Content-Type", containsString("application/json"))
                 .expectResponseTime(lessThan(5000L))
                 .expectBody("id", notNullValue())
-                .log(LogDetail.ALL)
                 .build();
 
 
         notFoundResponseSpec = new ResponseSpecBuilder()
                 .expectStatusCode(404)
                 .expectResponseTime(lessThan(5000L))
-                .log(LogDetail.ALL)
                 .build();
 
         updateResponseSpec = new ResponseSpecBuilder()
@@ -72,7 +66,6 @@ public class BaseApiConfig {
                 .expectHeader("Content-Type", containsString("application/json"))
                 .expectResponseTime(lessThan(5000L))
                 .expectBody("id", notNullValue())
-                .log(LogDetail.ALL)
                 .build();
 
     }
