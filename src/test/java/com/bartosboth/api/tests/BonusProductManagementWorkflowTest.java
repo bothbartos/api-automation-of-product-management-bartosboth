@@ -53,13 +53,13 @@ public class BonusProductManagementWorkflowTest extends BaseApiConfig {
         assertThat(products).hasSize(20);
 
         Product firstProduct = products[0];
-        AssertionsForClassTypes.assertThat(firstProduct.id()).isEqualTo(TEST_PRODUCT_ID);
-        AssertionsForClassTypes.assertThat(firstProduct.title()).isEqualTo("Fjallraven - Foldsack No. 1 Backpack, Fits 15 Laptops");
-        AssertionsForClassTypes.assertThat(firstProduct.price()).isEqualTo(109.95);
-        AssertionsForClassTypes.assertThat(firstProduct.category()).isEqualTo("men's clothing");
-        AssertionsForClassTypes.assertThat(firstProduct.description()).isEqualTo( "Your perfect pack for everyday use and walks in the forest. Stash your laptop (up to 15 inches) in the padded sleeve, your everyday");
-        AssertionsForClassTypes.assertThat(firstProduct.image()).isEqualTo( "https://fakestoreapi.com/img/81fPKd-2AYL._AC_SL1500_.jpg");
-        AssertionsForClassTypes.assertThat(firstProduct.rating()).isEqualTo(new Product.Rating(3.9, 120));
+        assertThat(firstProduct.id()).isEqualTo(TEST_PRODUCT_ID);
+        assertThat(firstProduct.title()).isEqualTo("Fjallraven - Foldsack No. 1 Backpack, Fits 15 Laptops");
+        assertThat(firstProduct.price()).isEqualTo(109.95);
+        assertThat(firstProduct.category()).isEqualTo("men's clothing");
+        assertThat(firstProduct.description()).isEqualTo( "Your perfect pack for everyday use and walks in the forest. Stash your laptop (up to 15 inches) in the padded sleeve, your everyday");
+        assertThat(firstProduct.image()).isEqualTo( "https://fakestoreapi.com/img/81fPKd-2AYL._AC_SL1500_.jpg");
+        assertThat(firstProduct.rating()).isEqualTo(new Product.Rating(3.9, 120));
 
         System.out.println("Schema validation passed for all products");
     }
@@ -76,13 +76,13 @@ public class BonusProductManagementWorkflowTest extends BaseApiConfig {
                 .body(matchesJsonSchemaInClasspath("schemas/product-schema.json"));
 
         Product product = response.as(Product.class);
-        AssertionsForClassTypes.assertThat(product.id()).isEqualTo(TEST_PRODUCT_ID);
-        AssertionsForClassTypes.assertThat(product.title()).isEqualTo("Fjallraven - Foldsack No. 1 Backpack, Fits 15 Laptops");
-        AssertionsForClassTypes.assertThat(product.price()).isEqualTo(109.95);
-        AssertionsForClassTypes.assertThat(product.category()).isEqualTo("men's clothing");
-        AssertionsForClassTypes.assertThat(product.description()).isEqualTo( "Your perfect pack for everyday use and walks in the forest. Stash your laptop (up to 15 inches) in the padded sleeve, your everyday");
-        AssertionsForClassTypes.assertThat(product.image()).isEqualTo( "https://fakestoreapi.com/img/81fPKd-2AYL._AC_SL1500_.jpg");
-        AssertionsForClassTypes.assertThat(product.rating()).isEqualTo(new Product.Rating(3.9, 120));
+        assertThat(product.id()).isEqualTo(TEST_PRODUCT_ID);
+        assertThat(product.title()).isEqualTo("Fjallraven - Foldsack No. 1 Backpack, Fits 15 Laptops");
+        assertThat(product.price()).isEqualTo(109.95);
+        assertThat(product.category()).isEqualTo("men's clothing");
+        assertThat(product.description()).isEqualTo( "Your perfect pack for everyday use and walks in the forest. Stash your laptop (up to 15 inches) in the padded sleeve, your everyday");
+        assertThat(product.image()).isEqualTo( "https://fakestoreapi.com/img/81fPKd-2AYL._AC_SL1500_.jpg");
+        assertThat(product.rating()).isEqualTo(new Product.Rating(3.9, 120));
 
 
         System.out.println("Schema validation passed for single product");
